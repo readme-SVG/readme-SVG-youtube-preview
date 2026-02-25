@@ -54,14 +54,16 @@ def generate_svg(
     background_color: str = "#0f1117",
     title_color: str = "#ffffff",
     title_opacity: float = 1.0,
+    title_plate_opacity: float = 0.78,
+    title_position: str = "bottom",
     border_radius: int = 10,
     border_width: int = 1,
     border_color: str = "rgba(255,255,255,0.07)",
     embed_thumbnail: bool = True,
 ) -> str:
     """
-    SVG card: real thumbnail (16:9) on top, title text below.
-    No play button. Thumbnail is embedded as base64 for GitHub compatibility.
+    SVG card: real thumbnail with a title plate (top or bottom).
+    Thumbnail can be embedded as base64 for GitHub compatibility.
     """
     thumb_height = int(width * 9 / 16)
 
@@ -77,24 +79,26 @@ def generate_svg(
     # Title sizing
     title_lines = _wrap(title, max_chars=max(18, int(width / 8.0)), max_lines=2)
     line_h = 20
-    pad_top = 13
-    pad_bot = 13
+    pad_top = 11
+    pad_bot = 11
     text_h = pad_top + len(title_lines) * line_h + pad_bot
-    card_h = thumb_height + text_h
+    card_h = thumb_height
 
     r = border_radius
+    title_position = "top" if title_position == "top" else "bottom"
+    plate_y = 0 if title_position == "top" else card_h - text_h
 
-    # Clip path: rounded top corners only (bottom is square where card bg shows)
+    # Clip path: fully rounded card
     thumb_clip = (
         f'<clipPath id="tc">'
-        f'<path d="M{r},0 H{width-r} Q{width},0 {width},{r} V{thumb_height} H0 V{r} Q0,0 {r},0 Z"/>'
+        f'<rect x="0" y="0" width="{width}" height="{card_h}" rx="{r}"/>'
         f'</clipPath>'
     )
 
     # Title lines
     title_svg = ""
     for i, line in enumerate(title_lines):
-        y = thumb_height + pad_top + (i + 1) * line_h - 3
+        y = plate_y + pad_top + (i + 1) * line_h - 3
         title_svg += (
             f'<text x="14" y="{y}" '
             f'fill="{_esc(title_color)}" '
@@ -116,9 +120,14 @@ def generate_svg(
 
   <!-- Thumbnail -->
   <image href="{thumb_src}"
-         x="0" y="0" width="{width}" height="{thumb_height}"
+         x="0" y="0" width="{width}" height="{card_h}"
          preserveAspectRatio="xMidYMid slice"
          clip-path="url(#tc)"/>
+
+  <!-- Title plate -->
+  <rect x="0" y="{plate_y}" width="{width}" height="{text_h}"
+        fill="{_esc(background_color)}" fill-opacity="{title_plate_opacity:.2f}"
+        clip-path="url(#tc)"/>
 
   <!-- Title -->
   {title_svg}
