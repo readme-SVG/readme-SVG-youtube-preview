@@ -55,6 +55,7 @@ def generate_svg(
     title_color: str = "#ffffff",
     title_opacity: float = 1.0,
     title_plate_opacity: float = 0.78,
+    title_plate_color: str = "#0f1117",
     title_position: str = "bottom",
     border_radius: int = 10,
     border_width: int = 1,
@@ -126,7 +127,7 @@ def generate_svg(
 
   <!-- Title plate -->
   <rect x="0" y="{plate_y}" width="{width}" height="{text_h}"
-        fill="{_esc(background_color)}" fill-opacity="{title_plate_opacity:.2f}"
+        fill="{_esc(title_plate_color)}" fill-opacity="{title_plate_opacity:.2f}"
         clip-path="url(#tc)"/>
 
   <!-- Title -->
