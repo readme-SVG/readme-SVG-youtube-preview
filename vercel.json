@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/badge", "destination": "/api/index" },
+    { "source": "/info", "destination": "/api/index" },
+    { "source": "/", "destination": "/index.html" }
+  ]
+}
