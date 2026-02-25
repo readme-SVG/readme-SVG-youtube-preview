@@ -27,7 +27,7 @@ def extract_video_id(url_or_id: str) -> Optional[str]:
 
 
 def fetch_video_info(video_id: str) -> dict:
-    """Fetch title from YouTube oEmbed — no API key required"""
+    """Fetch title + real thumbnail URL from YouTube oEmbed — no API key required"""
     try:
         oembed_url = (
             f"https://www.youtube.com/oembed"
@@ -36,9 +36,30 @@ def fetch_video_info(video_id: str) -> dict:
         req = urllib.request.Request(oembed_url, headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=6) as resp:
             data = json.loads(resp.read())
-            return {"title": data.get("title", ""), "channel": data.get("author_name", "")}
+            # oEmbed gives us thumbnail_url — this is the real per-video preview image.
+            # It's usually hqdefault (480×360). We also try maxresdefault (1280×720) first.
+            oembed_thumb = data.get("thumbnail_url", "")
+            # Upgrade to maxresdefault if possible (same host, just swap the filename)
+            if oembed_thumb:
+                maxres = oembed_thumb.rsplit("/", 1)[0] + "/maxresdefault.jpg"
+            else:
+                maxres = f"https://i.ytimg.com/vi/{video_id}/maxresdefault.jpg"
+            hq = oembed_thumb or f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"
+            return {
+                "title": data.get("title", ""),
+                "channel": data.get("author_name", ""),
+                # maxres first, hq as fallback (server will try maxres, fall back to hq)
+                "thumbnail_url": maxres,
+                "thumbnail_fallback": hq,
+            }
     except Exception:
-        return {"title": "", "channel": ""}
+        fallback = f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"
+        return {
+            "title": "",
+            "channel": "",
+            "thumbnail_url": fallback,
+            "thumbnail_fallback": fallback,
+        }
 
 
 @app.route("/")
@@ -73,6 +94,8 @@ def badge():
     svg = generate_svg(
         video_id=video_id,
         title=info["title"],
+        thumbnail_url=info["thumbnail_url"],
+        thumbnail_fallback=info["thumbnail_fallback"],
         width=width,
         background_color=bg,
         title_color=title_color,
@@ -103,7 +126,6 @@ def info():
 
     video_info = fetch_video_info(video_id)
     video_info["id"] = video_id
-    video_info["thumbnail"] = f"https://img.youtube.com/vi/{video_id}/mqdefault.jpg"
     video_info["youtube_url"] = f"https://www.youtube.com/watch?v={video_id}"
 
     return Response(
