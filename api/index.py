@@ -73,7 +73,8 @@ def badge():
     """
     GET /badge?url=<youtube_url>
     GET /badge?id=<video_id>
-    Optional: width, radius, bg, title_color, title_opacity, border_width, border_color, embed
+    Optional: width, radius, bg, title_color, title_opacity, plate_opacity,
+    title_position, border_width, border_color, embed
     """
     url_param = request.args.get("url") or request.args.get("id", "")
     if not url_param:
@@ -88,6 +89,10 @@ def badge():
     bg = "#" + request.args.get("bg", "0f1117").lstrip("#")
     title_color = "#" + request.args.get("title_color", "ffffff").lstrip("#")
     title_opacity = min(max(float(request.args.get("title_opacity", 1)), 0), 1)
+    plate_opacity = min(max(float(request.args.get("plate_opacity", 0.78)), 0), 1)
+    title_position = request.args.get("title_position", "bottom").lower()
+    if title_position not in {"top", "bottom"}:
+        title_position = "bottom"
     border_width = min(max(int(request.args.get("border_width", 1)), 0), 10)
     border_color = "#" + request.args.get("border_color", "ffffff").lstrip("#")
     embed = request.args.get("embed", "true").lower() != "false"
@@ -103,6 +108,8 @@ def badge():
         background_color=bg,
         title_color=title_color,
         title_opacity=title_opacity,
+        title_plate_opacity=plate_opacity,
+        title_position=title_position,
         border_radius=radius,
         border_width=border_width,
         border_color=border_color,
