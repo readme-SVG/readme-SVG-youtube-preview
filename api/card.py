@@ -53,7 +53,10 @@ def generate_svg(
     width: int = 320,
     background_color: str = "#0f1117",
     title_color: str = "#ffffff",
+    title_opacity: float = 1.0,
     border_radius: int = 10,
+    border_width: int = 1,
+    border_color: str = "rgba(255,255,255,0.07)",
     embed_thumbnail: bool = True,
 ) -> str:
     """
@@ -95,6 +98,7 @@ def generate_svg(
         title_svg += (
             f'<text x="14" y="{y}" '
             f'fill="{_esc(title_color)}" '
+            f'fill-opacity="{title_opacity:.2f}" '
             f'font-size="13.5" font-weight="600" '
             f'font-family="\'Segoe UI\',\'Helvetica Neue\',Arial,sans-serif" '
             f'letter-spacing="-0.01em">{_esc(line)}</text>\n  '
@@ -121,5 +125,5 @@ def generate_svg(
 
   <!-- Border -->
   <rect width="{width}" height="{card_h}" rx="{r}" fill="none"
-        stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        stroke="{_esc(border_color)}" stroke-width="{border_width}"/>
 </svg>"""
