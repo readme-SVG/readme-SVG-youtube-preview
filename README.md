@@ -1,76 +1,56 @@
-# 🎬 YouTube Badge Generator
+# 🎬 YT Badge — YouTube Card Generator
 
-Generate clickable SVG badges/cards for YouTube videos to embed in GitHub READMEs or websites.
+Generate clickable SVG cards from YouTube links — drop them in any GitHub README or website.
 
-## Example
+## What you get
 
-Paste a YouTube URL → get a badge like this (click to watch):
+A card with the video thumbnail and title, linking to the video on YouTube.
 
-[![YouTube video](https://your-domain.vercel.app/badge?id=dQw4w9WgXcQ)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+```markdown
+[![Watch on YouTube](https://your-app.vercel.app/badge?id=dQw4w9WgXcQ)](https://youtube.com/watch?v=dQw4w9WgXcQ)
+```
 
-## Usage
+## Deploy to Vercel (free)
 
-### Via web interface
+```bash
+# 1. Clone and enter the folder
+git clone <your-repo> && cd yt-badge
 
-Go to `https://your-domain.vercel.app/` and paste your YouTube link.
+# 2. Install Vercel CLI
+npm i -g vercel
 
-### Via API
+# 3. Deploy
+vercel
+```
+
+Done! Your badge service is live.
+
+## API
 
 ```
 GET /badge?url=https://youtube.com/watch?v=VIDEO_ID
-```
-
-Or with a bare video ID:
-
-```
 GET /badge?id=VIDEO_ID
 ```
 
-#### Parameters
-
-| Param | Description | Default |
-|-------|-------------|---------|
-| `url` or `id` | YouTube URL or video ID | required |
-| `width` | Card width in pixels | `320` |
-| `radius` | Border radius | `8` |
-| `bg` | Background color (hex without `#`) | `0d1117` |
-| `title_color` | Title text color | `ffffff` |
-| `stats_color` | Stats text color | `adbac7` |
-| `embed` | Embed thumbnail as base64 (`true`/`false`) | `true` |
-
-### Markdown embed
-
-```markdown
-[![Watch on YouTube](https://your-domain.vercel.app/badge?id=VIDEO_ID)](https://youtube.com/watch?v=VIDEO_ID)
-```
-
-### HTML embed
-
-```html
-<a href="https://youtube.com/watch?v=VIDEO_ID" target="_blank">
-  <img src="https://your-domain.vercel.app/badge?id=VIDEO_ID" alt="Watch on YouTube" />
-</a>
-```
-
-## Deploy to Vercel
-
-1. Fork or clone this repo
-2. Install [Vercel CLI](https://vercel.com/cli): `npm i -g vercel`
-3. Run `vercel` in the project directory
-4. Done! Your badge service is live.
+| Param | Default | Description |
+|---|---|---|
+| `url` / `id` | — | YouTube URL or bare video ID (required) |
+| `width` | `320` | Card width in px (200–600) |
+| `radius` | `10` | Border radius (0–30) |
+| `bg` | `0f1117` | Background colour (hex, no `#`) |
+| `title_color` | `ffffff` | Title text colour |
+| `embed` | `true` | Embed thumbnail as base64 (set `false` for speed) |
 
 ## Run locally
 
 ```bash
-pip install -r requirements.txt
+pip install flask gunicorn
 gunicorn api.index:app
+# open http://localhost:8000
 ```
-
-Then open `http://localhost:8000`
 
 ## How it works
 
-- **No API key needed** — uses YouTube's public oEmbed endpoint for title/channel info
-- **Thumbnails** — fetched from `img.youtube.com` and embedded as base64 for GitHub README compatibility
-- **SVG generation** — pure Python, no external image libraries required
-- SVG cards are cached for 1 hour via `Cache-Control` headers
+- **No API key needed** — title fetched via YouTube's public oEmbed endpoint
+- **Thumbnail** embedded as base64 so it renders in GitHub READMEs
+- SVG cached 1 hour via `Cache-Control`

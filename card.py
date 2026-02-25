@@ -5,10 +5,10 @@ from typing import Optional
 
 
 def fetch_image_as_base64(url: str) -> Optional[str]:
-    """Fetch image from URL and return as base64 data URI"""
+    """Fetch image from URL and return as base64 data URI (needed for GitHub README)"""
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=5) as response:
+        with urllib.request.urlopen(req, timeout=6) as response:
             data = response.read()
             content_type = response.headers.get("Content-Type", "image/jpeg").split(";")[0]
             encoded = base64.b64encode(data).decode("utf-8")
@@ -17,142 +17,111 @@ def fetch_image_as_base64(url: str) -> Optional[str]:
         return None
 
 
-def wrap_title(title: str, max_chars: int = 34, max_lines: int = 2) -> list[str]:
-    """Wrap title text into lines"""
+def wrap_title(title: str, max_chars: int = 38, max_lines: int = 2) -> list[str]:
     lines = textwrap.wrap(title, width=max_chars)
     return lines[:max_lines]
 
 
-def format_duration(seconds: Optional[int]) -> Optional[str]:
-    """Format seconds to MM:SS or HH:MM:SS"""
-    if seconds is None:
-        return None
-    h = seconds // 3600
-    m = (seconds % 3600) // 60
-    s = seconds % 60
-    if h > 0:
-        return f"{h}:{m:02d}:{s:02d}"
-    return f"{m}:{s:02d}"
-
-
-def format_views(views: Optional[int]) -> Optional[str]:
-    """Format view count"""
-    if views is None:
-        return None
-    if views >= 1_000_000:
-        return f"{views / 1_000_000:.1f}M views"
-    if views >= 1_000:
-        return f"{views / 1_000:.1f}K views"
-    return f"{views} views"
+def _escape(text: str) -> str:
+    return (
+        text.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;")
+            .replace("'", "&#39;")
+    )
 
 
 def generate_svg(
     video_id: str,
     title: str,
-    channel: str,
-    views: Optional[int] = None,
-    duration_seconds: Optional[int] = None,
     width: int = 320,
-    background_color: str = "#0d1117",
+    background_color: str = "#0f1117",
     title_color: str = "#ffffff",
-    stats_color: str = "#adbac7",
-    border_radius: int = 8,
+    border_radius: int = 10,
     embed_thumbnail: bool = True,
 ) -> str:
-    """Generate SVG card for a YouTube video"""
-
+    """
+    Generate a clean SVG card: thumbnail (16:9) + title below.
+    """
     thumb_url = f"https://img.youtube.com/vi/{video_id}/mqdefault.jpg"
     thumb_height = int(width * 9 / 16)
-    card_height = thumb_height + 72
 
-    # Try to embed thumbnail as base64 (works in GitHub README)
-    thumb_data = None
+    title_lines = wrap_title(title, max_chars=max(20, int(width / 8.2)), max_lines=2)
+    line_height = 19
+    title_padding_top = 14
+    title_padding_bottom = 14
+    text_area_height = title_padding_top + len(title_lines) * line_height + title_padding_bottom
+    card_height = thumb_height + text_area_height
+
+    thumb_src = thumb_url
     if embed_thumbnail:
-        thumb_data = fetch_image_as_base64(thumb_url)
+        embedded = fetch_image_as_base64(thumb_url)
+        if embedded:
+            thumb_src = embedded
 
-    thumb_src = thumb_data if thumb_data else thumb_url
+    r = border_radius
+    thumb_clip = f"""
+    <clipPath id="tc">
+      <path d="M{r},0 H{width - r} Q{width},0 {width},{r} V{thumb_height} H0 V{r} Q0,0 {r},0 Z"/>
+    </clipPath>"""
 
-    title_lines = wrap_title(title, max_chars=int(width / 8.5), max_lines=2)
-    title_svg_lines = ""
+    cx, cy = width // 2, thumb_height // 2
+    play = f"""
+    <g>
+      <circle cx="{cx}" cy="{cy}" r="28" fill="rgba(0,0,0,0.55)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+      <polygon points="{cx-10},{cy-14} {cx+18},{cy} {cx-10},{cy+14}" fill="#ffffff" opacity="0.97"/>
+    </g>"""
+
+    grad_y = thumb_height - 48
+    gradient_def = f"""
+    <defs>
+      {thumb_clip}
+      <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="transparent"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0.35)"/>
+      </linearGradient>
+    </defs>"""
+
+    title_svg = ""
     for i, line in enumerate(title_lines):
-        y = thumb_height + 18 + i * 17
-        title_svg_lines += f'<text x="12" y="{y}" fill="{title_color}" font-size="13" font-weight="600" font-family="\'Segoe UI\', system-ui, sans-serif" xml:space="preserve">{_escape(line)}</text>\n'
+        y = thumb_height + title_padding_top + (i + 1) * line_height - 3
+        title_svg += (
+            f'<text x="14" y="{y}" '
+            f'fill="{_escape(title_color)}" '
+            f'font-size="13.5" font-weight="600" '
+            f'font-family="\'Segoe UI\',\'Helvetica Neue\',Arial,sans-serif" '
+            f'letter-spacing="-0.01em">'
+            f'{_escape(line)}</text>\n    '
+        )
 
-    # Stats line
-    stats_parts = []
-    if channel:
-        stats_parts.append(_escape(channel))
-    if views is not None:
-        stats_parts.append(format_views(views) or "")
-    stats_text = " · ".join(filter(None, stats_parts))
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="{width}" height="{card_height}" viewBox="0 0 {width} {card_height}" role="img"
+     aria-label="{_escape(title)}">
+  {gradient_def}
 
-    stats_y = thumb_height + 18 + len(title_lines) * 17 + 2
-    stats_svg = f'<text x="12" y="{stats_y}" fill="{stats_color}" font-size="11" font-family="\'Segoe UI\', system-ui, sans-serif">{stats_text}</text>' if stats_text else ""
+  <!-- Card background -->
+  <rect width="{width}" height="{card_height}" rx="{r}" fill="{_escape(background_color)}"/>
 
-    # Duration badge
-    duration_svg = ""
-    duration_str = format_duration(duration_seconds)
-    if duration_str:
-        dur_w = len(duration_str) * 7 + 10
-        dur_x = width - dur_w - 6
-        dur_y = thumb_height - 22
-        duration_svg = f'''
-        <rect x="{dur_x}" y="{dur_y}" width="{dur_w}" height="16" rx="3" fill="rgba(0,0,0,0.85)"/>
-        <text x="{dur_x + dur_w // 2}" y="{dur_y + 11}" fill="#ffffff" font-size="10" font-weight="700"
-              font-family="\'Segoe UI\', system-ui, sans-serif" text-anchor="middle">{duration_str}</text>
-        '''
-
-    # Play button overlay
-    play_cx = width // 2
-    play_cy = thumb_height // 2
-    play_svg = f'''
-    <circle cx="{play_cx}" cy="{play_cy}" r="26" fill="rgba(0,0,0,0.6)"/>
-    <polygon points="{play_cx - 9},{play_cy - 13} {play_cx + 16},{play_cy} {play_cx - 9},{play_cy + 13}"
-             fill="#ffffff" opacity="0.95"/>
-    '''
-
-    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-     width="{width}" height="{card_height}" viewBox="0 0 {width} {card_height}">
-
-  <!-- Background -->
-  <rect width="{width}" height="{card_height}" rx="{border_radius}" fill="{background_color}"/>
-
-  <!-- Thumbnail clip -->
-  <clipPath id="thumb-clip">
-    <rect width="{width}" height="{thumb_height}" rx="{border_radius}" ry="{border_radius}"/>
-  </clipPath>
-
-  <!-- Bottom corners square for thumbnail -->
-  <rect y="{thumb_height - border_radius}" width="{width}" height="{border_radius}" fill="{background_color}" clip-path="url(#thumb-clip)"/>
-
-  <!-- Thumbnail image -->
+  <!-- Thumbnail -->
   <image href="{thumb_src}" x="0" y="0" width="{width}" height="{thumb_height}"
-         preserveAspectRatio="xMidYMid slice" clip-path="url(#thumb-clip)"/>
+         preserveAspectRatio="xMidYMid slice" clip-path="url(#tc)"/>
+
+  <!-- Gradient fade at bottom of thumbnail -->
+  <rect x="0" y="{grad_y}" width="{width}" height="48" fill="url(#fade)" clip-path="url(#tc)"/>
 
   <!-- Play button -->
-  {play_svg}
+  {play}
 
-  <!-- Duration badge -->
-  {duration_svg}
+  <!-- Title -->
+  {title_svg}
 
-  <!-- Text area -->
-  {title_svg_lines}
-  {stats_svg}
+  <!-- Red accent bar top -->
+  <rect x="0" y="0" width="{width}" height="3" fill="#ff0033"/>
 
-  <!-- Border -->
-  <rect width="{width}" height="{card_height}" rx="{border_radius}" fill="none"
-        stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-</svg>'''
+  <!-- Border overlay -->
+  <rect width="{width}" height="{card_height}" rx="{r}" fill="none"
+        stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+</svg>"""
 
     return svg
-
-
-def _escape(text: str) -> str:
-    """Escape XML special characters"""
-    return (
-        text.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
-        .replace("'", "&#39;")
-    )

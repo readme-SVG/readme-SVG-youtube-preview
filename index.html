@@ -1,670 +1,435 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YouTube Badge Generator</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YT Badge — YouTube card generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #080c10;
-      --surface: #0d1117;
-      --surface2: #161b22;
-      --border: rgba(255,255,255,0.07);
-      --accent: #ff0033;
-      --accent2: #ff4d6d;
-      --text: #e6edf3;
-      --muted: #7d8590;
-      --font-mono: 'Space Mono', monospace;
-      --font-body: 'DM Sans', sans-serif;
+      --bg:       #07090d;
+      --surface:  #0e1118;
+      --surface2: #161c26;
+      --border:   rgba(255,255,255,0.06);
+      --red:      #e5001a;
+      --red-glow: rgba(229,0,26,0.18);
+      --text:     #eef0f4;
+      --muted:    #636b78;
+      --mono:     'IBM Plex Mono', monospace;
+      --sans:     'Instrument Sans', sans-serif;
     }
 
-    html, body {
-      height: 100%;
+    html, body { height: 100%; }
+
+    body {
       background: var(--bg);
       color: var(--text);
-      font-family: var(--font-body);
+      font-family: var(--sans);
       font-size: 15px;
-      line-height: 1.6;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Grid noise background */
+    /* subtle grid */
     body::before {
       content: '';
-      position: fixed;
-      inset: 0;
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
       background-image:
-        linear-gradient(rgba(255,0,51,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,0,51,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      z-index: 0;
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size: 48px 48px;
     }
 
+    /* top glow */
     body::after {
       content: '';
-      position: fixed;
-      top: -200px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(255,0,51,0.07) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
+      position: fixed; top: -160px; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 400px;
+      background: radial-gradient(ellipse, rgba(229,0,26,0.09) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
     }
 
-    .page {
-      position: relative;
-      z-index: 1;
+    .wrap {
+      position: relative; z-index: 1;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 60px 20px 80px;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 64px 20px 96px;
     }
 
-    /* Header */
-    header {
-      text-align: center;
-      margin-bottom: 56px;
+    /* ── HEADER ── */
+    header { text-align: center; margin-bottom: 52px; }
+
+    .badge-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(229,0,26,0.1);
+      border: 1px solid rgba(229,0,26,0.25);
+      border-radius: 99px;
+      padding: 5px 14px;
+      font-family: var(--mono); font-size: 11px; font-weight: 600;
+      color: #ff3d52; letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+    .badge-pill span { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #ff3d52; animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+
+    h1 {
+      font-size: clamp(36px, 6vw, 60px);
+      font-weight: 600; letter-spacing: -0.03em; line-height: 1.05;
+      margin-bottom: 16px;
+    }
+    h1 em { font-style: normal; color: var(--red); }
+
+    .sub {
+      color: var(--muted); font-size: 16px; font-weight: 400;
+      max-width: 400px; margin: 0 auto;
     }
 
-    .logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
+    /* ── INPUT CARD ── */
+    .input-card {
+      width: 100%; max-width: 620px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
       margin-bottom: 20px;
     }
 
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: var(--accent);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .field { margin-bottom: 20px; }
+    .field:last-child { margin-bottom: 0; }
 
-    .logo-icon svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    .logo-text {
-      font-family: var(--font-mono);
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      color: var(--text);
-    }
-
-    h1 {
-      font-size: clamp(32px, 5vw, 52px);
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
-      margin-bottom: 14px;
-      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.5) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      font-size: 16px;
-      font-weight: 300;
-      max-width: 420px;
-      margin: 0 auto;
-    }
-
-    /* Main card */
-    .card {
-      width: 100%;
-      max-width: 680px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 32px;
-      margin-bottom: 24px;
-    }
-
-    .input-group {
-      margin-bottom: 24px;
-    }
-
-    label {
+    .field label {
       display: block;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 8px;
-      font-family: var(--font-mono);
+      font-family: var(--mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
     }
 
-    .input-row {
-      display: flex;
-      gap: 10px;
-    }
+    .url-row { display: flex; gap: 10px; }
 
-    input[type="text"],
+    input[type="text"] {
+      flex: 1; min-width: 0;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      color: var(--text);
+      font-family: var(--mono); font-size: 13px;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    input[type="text"]:focus {
+      border-color: rgba(229,0,26,0.45);
+      box-shadow: 0 0 0 3px rgba(229,0,26,0.09);
+    }
+    input[type="text"]::placeholder { color: var(--muted); }
+
+    .btn-go {
+      flex-shrink: 0;
+      background: var(--red);
+      color: #fff;
+      border: none; border-radius: 10px;
+      padding: 13px 22px;
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn-go:hover { background: #ff1f36; box-shadow: 0 4px 24px rgba(229,0,26,0.35); }
+    .btn-go:active { transform: scale(0.98); }
+    .btn-go:disabled { background: #2a2f38; color: var(--muted); box-shadow: none; cursor: not-allowed; }
+
+    /* divider */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      font-family: var(--mono); font-size: 10px; color: var(--muted);
+      margin: 4px 0;
+    }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* options row */
+    .opts { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .opt { flex: 1; min-width: 100px; }
+    .opt label { display: block; font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+
+    .color-wrap { display: flex; gap: 8px; align-items: center; }
+    input[type="color"] {
+      width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--bg); padding: 4px; cursor: pointer; flex-shrink: 0;
+    }
     input[type="number"] {
       width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 16px;
-      color: var(--text);
-      font-family: var(--font-mono);
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 12px; color: var(--text);
+      font-family: var(--mono); font-size: 13px; outline: none;
+      transition: border-color 0.18s;
     }
+    input[type="number"]:focus { border-color: rgba(229,0,26,0.45); }
 
-    input[type="text"]:focus,
-    input[type="number"]:focus {
-      border-color: rgba(255,0,51,0.5);
-      box-shadow: 0 0 0 3px rgba(255,0,51,0.08);
-    }
-
-    input[type="color"] {
-      width: 44px;
-      height: 44px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--bg);
-      padding: 4px;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    .options-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .color-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .color-row input[type="text"] {
-      flex: 1;
-    }
-
-    button.generate {
-      width: 100%;
-      padding: 14px 24px;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-family: var(--font-mono);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
-      text-transform: uppercase;
-    }
-
-    button.generate:hover {
-      background: var(--accent2);
-      box-shadow: 0 4px 20px rgba(255,0,51,0.3);
-    }
-
-    button.generate:active {
-      transform: scale(0.99);
-    }
-
-    button.generate:disabled {
-      background: #333;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    /* Result */
-    .result-card {
-      width: 100%;
-      max-width: 680px;
-      display: none;
-    }
-
-    .result-card.visible {
-      display: block;
-      animation: slideUp 0.3s ease;
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .result-section {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
+    /* ── ERROR ── */
+    .error {
+      display: none; width: 100%; max-width: 620px;
+      background: rgba(229,0,26,0.07); border: 1px solid rgba(229,0,26,0.2);
+      border-radius: 10px; padding: 12px 16px;
+      font-family: var(--mono); font-size: 12px; color: #ff6070;
       margin-bottom: 16px;
     }
+    .error.show { display: block; animation: fadeIn 0.2s ease; }
 
-    .result-section h3 {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 16px;
-    }
-
-    .preview-wrap {
-      display: flex;
-      justify-content: center;
-      background: var(--bg);
-      border-radius: 10px;
-      padding: 24px;
-      border: 1px solid var(--border);
-    }
-
-    .preview-wrap a {
-      display: block;
-    }
-
-    .preview-wrap img,
-    .preview-wrap svg {
-      display: block;
-      border-radius: 8px;
-    }
-
-    .code-block {
-      position: relative;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .code-block pre {
-      padding: 16px;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      color: var(--muted);
-      overflow-x: auto;
-      line-height: 1.7;
-      white-space: pre-wrap;
-      word-break: break-all;
-    }
-
-    .code-block pre em {
-      color: #7ee787;
-      font-style: normal;
-    }
-
-    .copy-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 5px 10px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .copy-btn:hover {
-      color: var(--text);
-      border-color: rgba(255,255,255,0.2);
-    }
-
-    .copy-btn.copied {
-      color: #7ee787;
-      border-color: rgba(126,231,135,0.3);
-    }
-
-    .tabs {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 12px;
-    }
-
-    .tab {
-      padding: 6px 14px;
-      background: transparent;
-      border: 1px solid transparent;
-      border-radius: 6px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .tab.active {
-      background: var(--surface2);
-      border-color: var(--border);
-      color: var(--text);
-    }
-
-    .error-msg {
-      display: none;
-      background: rgba(255,0,51,0.08);
-      border: 1px solid rgba(255,0,51,0.2);
-      border-radius: 10px;
-      padding: 12px 16px;
-      color: #ff6b8a;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      margin-bottom: 16px;
-    }
-
-    .error-msg.visible {
-      display: block;
-    }
-
+    /* ── LOADING ── */
     .loading {
-      display: none;
-      text-align: center;
-      padding: 40px;
-      color: var(--muted);
-      font-family: var(--font-mono);
-      font-size: 13px;
+      display: none; text-align: center;
+      padding: 48px 0; color: var(--muted);
+      font-family: var(--mono); font-size: 12px;
+    }
+    .loading.show { display: block; }
+    .spin {
+      display: inline-block; width: 22px; height: 22px;
+      border: 2px solid var(--border); border-top-color: var(--red);
+      border-radius: 50%; animation: spin 0.65s linear infinite;
+      margin-bottom: 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── RESULT ── */
+    .result { display: none; width: 100%; max-width: 620px; }
+    .result.show { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 22px; margin-bottom: 14px;
     }
 
-    .loading.visible { display: block; }
-
-    .spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      margin-bottom: 12px;
+    .panel-label {
+      font-family: var(--mono); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+      margin-bottom: 16px;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    /* preview */
+    .preview-box {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      padding: 28px; display: flex; justify-content: center; align-items: center;
     }
+    .preview-box a { display: block; line-height: 0; }
+    .preview-box img { border-radius: 10px; max-width: 100%; height: auto; }
 
-    /* How to use */
-    .how-to {
-      width: 100%;
-      max-width: 680px;
-      margin-top: 8px;
+    /* code tabs */
+    .tabs { display: flex; gap: 3px; margin-bottom: 12px; }
+    .tab {
+      background: transparent; border: 1px solid transparent;
+      border-radius: 7px; padding: 5px 13px;
+      font-family: var(--mono); font-size: 11px; color: var(--muted);
+      cursor: pointer; transition: all 0.13s;
     }
+    .tab.on { background: var(--surface2); border-color: var(--border); color: var(--text); }
+    .tab:hover:not(.on) { color: var(--text); }
 
-    .how-to h2 {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
+    .code-wrap {
+      position: relative;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
     }
+    .code-wrap pre {
+      padding: 16px 48px 16px 16px;
+      font-family: var(--mono); font-size: 12px; color: #8b949e;
+      line-height: 1.7; overflow-x: auto;
+      white-space: pre-wrap; word-break: break-all;
+    }
+    .copy {
+      position: absolute; top: 9px; right: 9px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 5px 11px;
+      font-family: var(--mono); font-size: 11px; color: var(--muted);
+      cursor: pointer; transition: all 0.13s;
+    }
+    .copy:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+    .copy.ok { color: #56d364; border-color: rgba(86,211,100,0.25); }
 
+    /* ── FOOTER STEPS ── */
     .steps {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      width: 100%; max-width: 620px; margin-top: 10px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
     }
-
-    @media (max-width: 560px) {
+    @media (max-width: 520px) {
       .steps { grid-template-columns: 1fr; }
-      .options-grid { grid-template-columns: 1fr; }
+      .opts { flex-direction: column; }
     }
-
     .step {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 13px; padding: 18px 16px;
     }
-
-    .step-num {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--accent);
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .step p {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
+    .step-n { font-family: var(--mono); font-size: 11px; color: var(--red); font-weight: 700; margin-bottom: 6px; }
+    .step p { font-size: 13px; color: var(--muted); line-height: 1.5; }
   </style>
 </head>
 <body>
-<div class="page">
+<div class="wrap">
 
   <header>
-    <div class="logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M7 5.5L13 9L7 12.5V5.5Z" fill="white"/>
-        </svg>
-      </div>
-      <span class="logo-text">YT·BADGE</span>
-    </div>
-    <h1>YouTube Badge<br/>Generator</h1>
-    <p class="subtitle">Paste a YouTube link — get a clickable SVG card for your README or website.</p>
+    <div class="badge-pill"><span></span>Live service</div>
+    <h1>Turn any YouTube link<br/>into a <em>clickable badge</em></h1>
+    <p class="sub">Paste a video URL — get a thumbnail card for your README or website.</p>
   </header>
 
-  <!-- Generator form -->
-  <div class="card">
-    <div class="input-group">
+  <!-- Input -->
+  <div class="input-card">
+    <div class="field">
       <label>YouTube URL or Video ID</label>
-      <input type="text" id="url-input" placeholder="https://youtube.com/watch?v=... or dQw4w9WgXcQ" />
+      <div class="url-row">
+        <input type="text" id="url" placeholder="https://youtube.com/watch?v=... or dQw4w9WgXcQ" autofocus />
+        <button class="btn-go" id="genbtn" onclick="generate()">Generate</button>
+      </div>
     </div>
 
-    <div class="options-grid">
-      <div class="input-group" style="margin-bottom:0">
+    <div class="divider">options</div>
+
+    <div class="opts">
+      <div class="opt">
         <label>Width (px)</label>
-        <input type="number" id="width-input" value="320" min="200" max="600" />
+        <input type="number" id="w" value="320" min="200" max="600"/>
       </div>
-      <div class="input-group" style="margin-bottom:0">
-        <label>Border Radius</label>
-        <input type="number" id="radius-input" value="8" min="0" max="30" />
+      <div class="opt">
+        <label>Radius</label>
+        <input type="number" id="r" value="10" min="0" max="30"/>
       </div>
-      <div class="input-group" style="margin-bottom:0">
-        <label>Background Color</label>
-        <div class="color-row">
-          <input type="color" id="bg-color-picker" value="#0d1117" />
-          <input type="text" id="bg-color-text" value="#0d1117" />
+      <div class="opt" style="min-width:140px">
+        <label>Background</label>
+        <div class="color-wrap">
+          <input type="color" id="bgp" value="#0f1117"/>
+          <input type="text" id="bgt" value="#0f1117" style="font-size:12px"/>
         </div>
       </div>
-      <div class="input-group" style="margin-bottom:0">
-        <label>Title Color</label>
-        <div class="color-row">
-          <input type="color" id="title-color-picker" value="#ffffff" />
-          <input type="text" id="title-color-text" value="#ffffff" />
+      <div class="opt" style="min-width:140px">
+        <label>Title color</label>
+        <div class="color-wrap">
+          <input type="color" id="tcp" value="#ffffff"/>
+          <input type="text" id="tct" value="#ffffff" style="font-size:12px"/>
         </div>
       </div>
     </div>
-
-    <div class="error-msg" id="error-msg"></div>
-
-    <button class="generate" id="gen-btn" onclick="generate()">
-      ▶ Generate Badge
-    </button>
   </div>
 
-  <!-- Loading -->
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <div>Fetching video info...</div>
-  </div>
+  <div class="error" id="err"></div>
+  <div class="loading" id="load"><div class="spin"></div><div>Fetching video info…</div></div>
 
   <!-- Result -->
-  <div class="result-card" id="result-card">
+  <div class="result" id="result">
 
-    <div class="result-section">
-      <h3>Preview</h3>
-      <div class="preview-wrap">
-        <a id="preview-link" href="#" target="_blank" rel="noopener">
-          <img id="preview-img" src="" alt="YouTube card preview" style="max-width:100%" />
+    <div class="panel">
+      <div class="panel-label">Preview — click the card to open YouTube</div>
+      <div class="preview-box">
+        <a id="yt-link" href="#" target="_blank" rel="noopener noreferrer">
+          <img id="preview" src="" alt="YouTube card"/>
         </a>
       </div>
     </div>
 
-    <div class="result-section">
-      <h3>Embed Code</h3>
+    <div class="panel">
+      <div class="panel-label">Copy & paste</div>
       <div class="tabs">
-        <button class="tab active" onclick="setTab('markdown', this)">Markdown</button>
-        <button class="tab" onclick="setTab('html', this)">HTML</button>
-        <button class="tab" onclick="setTab('url', this)">Direct URL</button>
+        <button class="tab on" onclick="tab('md',this)">Markdown</button>
+        <button class="tab"    onclick="tab('html',this)">HTML</button>
+        <button class="tab"    onclick="tab('url',this)">URL only</button>
       </div>
-      <div class="code-block">
-        <pre id="code-output"></pre>
-        <button class="copy-btn" id="copy-btn" onclick="copyCode()">Copy</button>
+      <div class="code-wrap">
+        <pre id="code"></pre>
+        <button class="copy" id="copybtn" onclick="doCopy()">Copy</button>
       </div>
     </div>
 
   </div>
 
-  <!-- How to use -->
-  <div class="how-to">
-    <h2>How it works</h2>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">01 —</div>
-        <p>Paste any YouTube video URL or just the video ID above.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">02 —</div>
-        <p>Click Generate to create a clickable SVG card with the video thumbnail.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">03 —</div>
-        <p>Copy the Markdown or HTML snippet and paste it into your README or website.</p>
-      </div>
-    </div>
+  <div class="steps">
+    <div class="step"><div class="step-n">01 —</div><p>Paste any YouTube URL or just the 11-character video ID.</p></div>
+    <div class="step"><div class="step-n">02 —</div><p>Hit Generate — we fetch the title and build an SVG card.</p></div>
+    <div class="step"><div class="step-n">03 —</div><p>Copy the Markdown or HTML snippet into your README.</p></div>
   </div>
 
 </div>
 
 <script>
-  let currentVideoId = null;
-  let currentTab = 'markdown';
-  let badgeUrl = '';
-
-  function syncColor(pickerId, textId) {
-    const picker = document.getElementById(pickerId);
-    const text = document.getElementById(textId);
-    picker.addEventListener('input', () => { text.value = picker.value; });
-    text.addEventListener('input', () => {
-      if (/^#[0-9a-fA-F]{6}$/.test(text.value)) picker.value = text.value;
-    });
+  // ── colour pickers sync ──
+  function syncPair(pickerID, textID) {
+    const p = document.getElementById(pickerID);
+    const t = document.getElementById(textID);
+    p.addEventListener('input', () => { t.value = p.value; });
+    t.addEventListener('input', () => { if(/^#[0-9a-fA-F]{6}$/.test(t.value)) p.value = t.value; });
   }
+  syncPair('bgp','bgt');
+  syncPair('tcp','tct');
 
-  syncColor('bg-color-picker', 'bg-color-text');
-  syncColor('title-color-picker', 'title-color-text');
+  document.getElementById('url').addEventListener('keydown', e => { if(e.key==='Enter') generate(); });
 
-  document.getElementById('url-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') generate();
-  });
+  let vid = null, badgeUrl = '', ytUrl = '', curTab = 'md';
 
-  function showError(msg) {
-    const el = document.getElementById('error-msg');
-    el.textContent = msg;
-    el.classList.add('visible');
+  function err(msg) {
+    const el = document.getElementById('err');
+    el.textContent = msg; el.classList.add('show');
   }
-
-  function hideError() {
-    document.getElementById('error-msg').classList.remove('visible');
-  }
+  function clearErr() { document.getElementById('err').classList.remove('show'); }
 
   async function generate() {
-    const url = document.getElementById('url-input').value.trim();
-    if (!url) { showError('Please enter a YouTube URL or video ID'); return; }
-
-    hideError();
-    document.getElementById('result-card').classList.remove('visible');
-    document.getElementById('loading').classList.add('visible');
-    document.getElementById('gen-btn').disabled = true;
+    const url = document.getElementById('url').value.trim();
+    if(!url){ err('Please enter a YouTube URL or video ID.'); return; }
+    clearErr();
+    document.getElementById('result').classList.remove('show');
+    document.getElementById('load').classList.add('show');
+    document.getElementById('genbtn').disabled = true;
 
     try {
-      // Get video info
-      const infoResp = await fetch(`/info?url=${encodeURIComponent(url)}`);
-      if (!infoResp.ok) { throw new Error('Could not find video. Check the URL and try again.'); }
-      const info = await infoResp.json();
-      currentVideoId = info.id;
+      const res = await fetch('/info?url=' + encodeURIComponent(url));
+      if(!res.ok) throw new Error('Could not find this video — double-check the URL.');
+      const info = await res.json();
+      vid = info.id;
 
-      // Build badge URL
-      const width = document.getElementById('width-input').value || 320;
-      const radius = document.getElementById('radius-input').value || 8;
-      const bg = document.getElementById('bg-color-text').value.replace('#', '');
-      const titleColor = document.getElementById('title-color-text').value.replace('#', '');
+      const w = document.getElementById('w').value || 320;
+      const r = document.getElementById('r').value || 10;
+      const bg = document.getElementById('bgt').value.replace('#','');
+      const tc = document.getElementById('tct').value.replace('#','');
 
-      badgeUrl = `/badge?id=${currentVideoId}&width=${width}&radius=${radius}&bg=${bg}&title_color=${titleColor}`;
+      badgeUrl = `/badge?id=${vid}&width=${w}&radius=${r}&bg=${bg}&title_color=${tc}`;
+      ytUrl = `https://www.youtube.com/watch?v=${vid}`;
 
-      // Show preview
-      const ytUrl = `https://www.youtube.com/watch?v=${currentVideoId}`;
-      document.getElementById('preview-link').href = ytUrl;
-      document.getElementById('preview-img').src = badgeUrl;
+      document.getElementById('yt-link').href = ytUrl;
+      document.getElementById('preview').src = badgeUrl + '&embed=false';  // fast preview (no base64)
 
-      updateCode(ytUrl);
-
-      document.getElementById('loading').classList.remove('visible');
-      document.getElementById('result-card').classList.add('visible');
-    } catch (err) {
-      document.getElementById('loading').classList.remove('visible');
-      showError(err.message || 'Something went wrong');
+      renderCode();
+      document.getElementById('result').classList.add('show');
+    } catch(e) {
+      err(e.message || 'Something went wrong.');
     } finally {
-      document.getElementById('gen-btn').disabled = false;
+      document.getElementById('load').classList.remove('show');
+      document.getElementById('genbtn').disabled = false;
     }
   }
 
-  function updateCode(ytUrl) {
-    const absUrl = window.location.origin + badgeUrl;
-    let code = '';
-    if (currentTab === 'markdown') {
-      code = `[![YouTube video](${absUrl})](${ytUrl})`;
-    } else if (currentTab === 'html') {
-      code = `<a href="${ytUrl}" target="_blank">\n  <img src="${absUrl}" alt="YouTube video" />\n</a>`;
-    } else {
-      code = absUrl;
-    }
-    document.getElementById('code-output').textContent = code;
+  function renderCode() {
+    const abs = window.location.origin + badgeUrl;
+    let code;
+    if(curTab === 'md')   code = `[![Watch on YouTube](${abs})](${ytUrl})`;
+    else if(curTab === 'html') code = `<a href="${ytUrl}" target="_blank" rel="noopener">\n  <img src="${abs}" alt="Watch on YouTube" />\n</a>`;
+    else                  code = abs;
+    document.getElementById('code').textContent = code;
   }
 
-  function setTab(tab, btn) {
-    currentTab = tab;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    if (currentVideoId) {
-      const ytUrl = `https://www.youtube.com/watch?v=${currentVideoId}`;
-      updateCode(ytUrl);
-    }
+  function tab(name, btn) {
+    curTab = name;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+    btn.classList.add('on');
+    if(vid) renderCode();
   }
 
-  function copyCode() {
-    const code = document.getElementById('code-output').textContent;
-    navigator.clipboard.writeText(code).then(() => {
-      const btn = document.getElementById('copy-btn');
-      btn.textContent = '✓ Copied';
-      btn.classList.add('copied');
-      setTimeout(() => {
-        btn.textContent = 'Copy';
-        btn.classList.remove('copied');
-      }, 2000);
+  function doCopy() {
+    navigator.clipboard.writeText(document.getElementById('code').textContent).then(() => {
+      const btn = document.getElementById('copybtn');
+      btn.textContent = '✓ Copied'; btn.classList.add('ok');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 2000);
     });
   }
 </script>

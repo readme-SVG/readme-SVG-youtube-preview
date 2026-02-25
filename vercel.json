@@ -1,7 +1,10 @@
 {
-  "rewrites": [
-    { "source": "/badge", "destination": "/api/index" },
-    { "source": "/info", "destination": "/api/index" },
-    { "source": "/", "destination": "/index.html" }
+  "builds": [
+    { "src": "api/index.py", "use": "@vercel/python" }
+  ],
+  "routes": [
+    { "src": "/badge", "dest": "/api/index.py" },
+    { "src": "/info",  "dest": "/api/index.py" },
+    { "src": "/(.*)", "dest": "/api/index.py" }
   ]
 }
