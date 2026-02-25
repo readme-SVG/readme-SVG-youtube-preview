@@ -91,9 +91,16 @@ def badge():
     title_opacity = min(max(float(request.args.get("title_opacity", 1)), 0), 1)
     plate_color = "#" + request.args.get("plate_color", "0f1117").lstrip("#")
     plate_opacity = min(max(float(request.args.get("plate_opacity", 0.78)), 0), 1)
-    title_position = request.args.get("title_position", "bottom").lower()
-    if title_position not in {"top", "bottom"}:
-        title_position = "bottom"
+    title_position = request.args.get("title_position", "overlay_bottom").lower()
+    title_position_aliases = {
+        "top": "overlay_top",
+        "bottom": "overlay_bottom",
+        "overlay_top": "overlay_top",
+        "overlay_bottom": "overlay_bottom",
+        "outside_top": "outside_top",
+        "outside_bottom": "outside_bottom",
+    }
+    title_position = title_position_aliases.get(title_position, "overlay_bottom")
     border_width = min(max(int(request.args.get("border_width", 1)), 0), 10)
     border_color = "#" + request.args.get("border_color", "ffffff").lstrip("#")
     embed = request.args.get("embed", "true").lower() != "false"

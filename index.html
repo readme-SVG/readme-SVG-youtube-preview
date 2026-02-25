@@ -626,8 +626,10 @@
       <div class="input-group" style="margin-bottom:0">
         <label>Title Position</label>
         <select id="title-position-input">
-          <option value="bottom" selected>Bottom</option>
-          <option value="top">Top</option>
+          <option value="outside_top">Very Top (above preview)</option>
+          <option value="overlay_top">Top (overlay)</option>
+          <option value="overlay_bottom" selected>Bottom (overlay)</option>
+          <option value="outside_bottom">Very Bottom (below preview)</option>
         </select>
       </div>
       <div class="input-group" style="margin-bottom:0">
@@ -759,7 +761,7 @@
       const plateColor = document.getElementById('plate-color-text').value.replace('#', '');
       const titleOpacity = document.getElementById('title-opacity-input').value || 1;
       const plateOpacity = document.getElementById('plate-opacity-input').value || 0.78;
-      const titlePosition = document.getElementById('title-position-input').value || 'bottom';
+      const titlePosition = document.getElementById('title-position-input').value || 'overlay_bottom';
       const borderWidth = document.getElementById('border-width-input').value || 1;
       const borderColor = document.getElementById('border-color-text').value.replace('#', '');
 

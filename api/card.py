@@ -56,14 +56,15 @@ def generate_svg(
     title_opacity: float = 1.0,
     title_plate_opacity: float = 0.78,
     title_plate_color: str = "#0f1117",
-    title_position: str = "bottom",
+    title_position: str = "overlay_bottom",
     border_radius: int = 10,
     border_width: int = 1,
     border_color: str = "rgba(255,255,255,0.07)",
     embed_thumbnail: bool = True,
 ) -> str:
     """
-    SVG card: real thumbnail with a title plate (top or bottom).
+    SVG card: real thumbnail with a title plate.
+    Supported title positions: outside_top, overlay_top, overlay_bottom, outside_bottom.
     Thumbnail can be embedded as base64 for GitHub compatibility.
     """
     thumb_height = int(width * 9 / 16)
@@ -83,11 +84,30 @@ def generate_svg(
     pad_top = 11
     pad_bot = 11
     text_h = pad_top + len(title_lines) * line_h + pad_bot
-    card_h = thumb_height
 
     r = border_radius
-    title_position = "top" if title_position == "top" else "bottom"
-    plate_y = 0 if title_position == "top" else card_h - text_h
+    position_map = {
+        "top": "overlay_top",
+        "bottom": "overlay_bottom",
+        "overlay_top": "overlay_top",
+        "overlay_bottom": "overlay_bottom",
+        "outside_top": "outside_top",
+        "outside_bottom": "outside_bottom",
+    }
+    position = position_map.get(title_position, "overlay_bottom")
+    is_outside = position in {"outside_top", "outside_bottom"}
+
+    card_h = thumb_height + (text_h if is_outside else 0)
+    thumb_y = text_h if position == "outside_top" else 0
+
+    if position == "overlay_top":
+        plate_y = 0
+    elif position == "overlay_bottom":
+        plate_y = thumb_y + thumb_height - text_h
+    elif position == "outside_top":
+        plate_y = 0
+    else:
+        plate_y = thumb_height
 
     # Clip path: fully rounded card
     thumb_clip = (
@@ -121,7 +141,7 @@ def generate_svg(
 
   <!-- Thumbnail -->
   <image href="{thumb_src}"
-         x="0" y="0" width="{width}" height="{card_h}"
+         x="0" y="{thumb_y}" width="{width}" height="{thumb_height}"
          preserveAspectRatio="xMidYMid slice"
          clip-path="url(#tc)"/>
 
