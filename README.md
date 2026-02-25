@@ -39,7 +39,10 @@ GET /badge?id=VIDEO_ID
 | `radius` | `10` | Border radius (0–30) |
 | `bg` | `0f1117` | Background colour (hex, no `#`) |
 | `title_color` | `ffffff` | Title text colour |
-| `title_opacity` | `1` | Title opacity (0–1) |
+| `title_opacity` | `1` | Title text opacity (0–1) |
+| `plate_color` | `0f1117` | Title plate colour (hex, no `#`) |
+| `plate_opacity` | `0.78` | Title plate transparency (0–1) |
+| `title_position` | `bottom` | Title plate position: `top` or `bottom` |
 | `border_width` | `1` | Border width in px (0–10) |
 | `border_color` | `ffffff` | Border colour (hex, no `#`) |
 | `embed` | `true` | Embed thumbnail as base64 (set `false` for speed) |

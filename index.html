@@ -243,8 +243,24 @@
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
+
+    select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+    }
+
     input[type="text"]:focus,
-    input[type="number"]:focus {
+    input[type="number"]:focus,
+    select:focus {
       border-color: rgba(255,0,51,0.5);
       box-shadow: 0 0 0 3px rgba(255,0,51,0.08);
     }
@@ -593,8 +609,26 @@
         </div>
       </div>
       <div class="input-group" style="margin-bottom:0">
+        <label>Title Plate Color</label>
+        <div class="color-row">
+          <input type="color" id="plate-color-picker" value="#0f1117" />
+          <input type="text" id="plate-color-text" value="#0f1117" />
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom:0">
         <label>Text Opacity (0-1)</label>
         <input type="number" id="title-opacity-input" value="1" min="0" max="1" step="0.05" />
+      </div>
+      <div class="input-group" style="margin-bottom:0">
+        <label>Text Plate Opacity (0-1)</label>
+        <input type="number" id="plate-opacity-input" value="0.78" min="0" max="1" step="0.05" />
+      </div>
+      <div class="input-group" style="margin-bottom:0">
+        <label>Title Position</label>
+        <select id="title-position-input">
+          <option value="bottom" selected>Bottom</option>
+          <option value="top">Top</option>
+        </select>
       </div>
       <div class="input-group" style="margin-bottom:0">
         <label>Border Width (px)</label>
@@ -686,6 +720,7 @@
 
   syncColor('bg-color-picker', 'bg-color-text');
   syncColor('title-color-picker', 'title-color-text');
+  syncColor('plate-color-picker', 'plate-color-text');
   syncColor('border-color-picker', 'border-color-text');
 
   document.getElementById('url-input').addEventListener('keydown', e => {
@@ -721,11 +756,14 @@
       const radius = document.getElementById('radius-input').value || 8;
       const bg = document.getElementById('bg-color-text').value.replace('#', '');
       const titleColor = document.getElementById('title-color-text').value.replace('#', '');
+      const plateColor = document.getElementById('plate-color-text').value.replace('#', '');
       const titleOpacity = document.getElementById('title-opacity-input').value || 1;
+      const plateOpacity = document.getElementById('plate-opacity-input').value || 0.78;
+      const titlePosition = document.getElementById('title-position-input').value || 'bottom';
       const borderWidth = document.getElementById('border-width-input').value || 1;
       const borderColor = document.getElementById('border-color-text').value.replace('#', '');
 
-      badgeUrl = `/badge?id=${currentVideoId}&width=${width}&radius=${radius}&bg=${bg}&title_color=${titleColor}&title_opacity=${titleOpacity}&border_width=${borderWidth}&border_color=${borderColor}`;
+      badgeUrl = `/badge?id=${currentVideoId}&width=${width}&radius=${radius}&bg=${bg}&title_color=${titleColor}&title_opacity=${titleOpacity}&plate_color=${plateColor}&plate_opacity=${plateOpacity}&title_position=${titlePosition}&border_width=${borderWidth}&border_color=${borderColor}`;
 
       const ytUrl = `https://www.youtube.com/watch?v=${currentVideoId}`;
       document.getElementById('preview-link').href = ytUrl;
