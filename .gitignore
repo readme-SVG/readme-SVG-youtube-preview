@@ -1,0 +1,49 @@
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Packaging artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Test and coverage outputs
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Type checker and linter caches
+.mypy_cache/
+.ruff_cache/
+.pyre/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# macOS and Windows system files
+.DS_Store
+Thumbs.db
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# Node.js dependencies (if used for local tooling)
+node_modules/
+
+# Vercel local settings
+.vercel/
