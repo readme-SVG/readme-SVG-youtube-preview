@@ -1,257 +1,257 @@
-<div align="center">
+# readme-SVG YouTube Preview
 
-[![SVG Animation](https://readme-svg-typing-generator.vercel.app/api?lines=YouTube%20Badge%20Generator&animation=stroke&color=ff0000&background=00000000&size=52&font=monospace&duration=7000&pause=0&width=700&height=60&letterSpacing=-0.05em&center=false&vCenter=false&multiline=false&repeat=true&random=false)](https://github.com/OstinUA)
+**Turn any YouTube URL into a GitHub-safe, clickable SVG preview card with zero API-key drama.**
 
-Embed clickable YouTube cards in any GitHub README — no API key required
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue?style=for-the-badge)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#tech-stack)
+[![Vercel Runtime](https://img.shields.io/badge/Runtime-Vercel%20Python-000000?style=for-the-badge&logo=vercel&logoColor=white)](vercel.json)
+[![Build](https://img.shields.io/badge/Build-No%20CI%20configured-lightgrey?style=for-the-badge)](#testing)
+[![Coverage](https://img.shields.io/badge/Coverage-Not%20Configured-lightgrey?style=for-the-badge)](#testing)
 
-[![Deploy to Vercel](https://img.shields.io/badge/Deploy%20to-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/new/clone?repository-url=https://github.com/readme-SVG/readme-SVG-youtube-preview)
-[![No API Key](https://img.shields.io/badge/No%20API%20Key-Required-22c55e?style=for-the-badge&logo=youtube&logoColor=white)](#how-it-works)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](https://opensource.org/licenses/Apache-2.0)
-[![SVG Output](https://img.shields.io/badge/Output-Pure%20SVG-ff0000?style=for-the-badge)](#)
+A lightweight Flask service that fetches YouTube metadata via oEmbed, generates polished SVG cards, and optionally embeds thumbnails as base64 so GitHub README rendering doesn’t nuke your preview images.
 
-</div>
+## Table of Contents
 
----
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Technical Notes](#technical-notes)
+  - [Project Structure](#project-structure)
+  - [Key Design Decisions](#key-design-decisions)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [License](#license)
+- [Contacts](#contacts)
+- [❤️ Support the Project](#️-support-the-project)
 
-## ✨ What is this?
+## Features
 
-**readme-SVG-youtube-preview** turns any YouTube URL into a **clickable, styled SVG card** you can drop into any GitHub README, Markdown file, or webpage.
+- **YouTube URL parsing that doesn’t flake out**
+  - Supports raw 11-char IDs and common formats (`watch?v=`, `youtu.be`, `embed`, `shorts`).
+- **Zero API key dependency**
+  - Pulls title/thumbnail metadata via public YouTube oEmbed endpoint.
+- **GitHub-compatible SVG output**
+  - Can embed thumbnail as base64 data URI to bypass GitHub SVG external image restrictions.
+- **Highly tweakable card rendering**
+  - Width, radius, title opacity, plate opacity, border styling, title placement.
+- **Multiple title layouts**
+  - `overlay_top`, `overlay_bottom`, `outside_top`, `outside_bottom` (plus aliases).
+- **Fast, stateless HTTP API**
+  - `/badge` for SVG rendering, `/info` for metadata probing.
+- **Cache-friendly responses**
+  - `Cache-Control: public, max-age=3600` out of the box.
+- **Built-in browser UI**
+  - Local playground (`/`) for live config tweaking + instant Markdown/HTML snippet generation.
 
-```markdown
-[![Watch on YouTube](https://your-app.vercel.app/badge?id=dQw4w9WgXcQ)](https://youtube.com/watch?v=dQw4w9WgXcQ)
+## Tech Stack
+
+- **Language:** Python (runtime-compatible with Vercel Python serverless)
+- **Backend framework:** Flask
+- **HTTP layer:** `urllib.request` (standard lib)
+- **Serving model:** Vercel serverless via `@vercel/python`
+- **Frontend:** vanilla HTML/CSS/JS (`index.html`, `styles.css`, `app.js`)
+- **Process server (non-serverless environments):** Gunicorn
+
+## Technical Notes
+
+### Project Structure
+
+```text
+.
+├── api/
+│   ├── __init__.py
+│   ├── index.py          # Flask app + routes (/ , /badge, /info)
+│   └── card.py           # SVG generation + base64 image embedding
+├── app.js                # Frontend logic for generator UI
+├── index.html            # Generator UI markup
+├── styles.css            # UI styling
+├── requirements.txt      # Python dependencies
+├── vercel.json           # Vercel build/routes config
+├── LICENSE
+└── README.md
 ```
 
-> The thumbnail is embedded as **base64 inside the SVG** — so it renders perfectly inside GitHub README without being blocked by GitHub's image proxy.
+### Key Design Decisions
 
----
+1. **oEmbed over official YouTube Data API**  
+   Keeps onboarding friction low: no API keys, no quota setup, no credential handling.
 
-## 🎬 Live Examples
+2. **Base64 thumbnail embedding as first-class behavior**  
+   GitHub markdown rendering strips/blocks external image references in SVGs, so embedding image payload into SVG is the pragmatic fix.
 
-<div align="center">
+3. **Server-side SVG composition instead of static templates**  
+   Dynamic query parameters let users style cards without forking the project or editing assets.
 
-[![YouTube video](https://readme-svg-youtube-preview.vercel.app/badge?id=FHCoToqLIEg&width=250&radius=8&bg=0d1117&title_color=ffffff&title_opacity=1&plate_color=0f1117&plate_opacity=0.78&title_position=outside_bottom&border_width=1&border_color=ff0000)](https://www.youtube.com/watch?v=FHCoToqLIEg)ㅤ[![YouTube video](https://readme-svg-youtube-preview.vercel.app/badge?id=hHwY3NDvCAw&width=250&radius=8&bg=0d1117&title_color=ffffff&title_opacity=1&plate_color=0f1117&plate_opacity=0.78&title_position=outside_bottom&border_width=1&border_color=ffffff)](https://www.youtube.com/watch?v=hHwY3NDvCAw)ㅤ[![YouTube video](https://readme-svg-youtube-preview.vercel.app/badge?id=SAmPKZr-Rm4&width=250&radius=8&bg=0d1117&title_color=ffffff&title_opacity=1&plate_color=0f1117&plate_opacity=0.78&title_position=outside_bottom&border_width=1&border_color=ff0000)](https://www.youtube.com/watch?v=SAmPKZr-Rm4)
+4. **Hard parameter clamping**  
+   Width/radius/opacity/border values are constrained to sane ranges to prevent broken output and tame weird inputs.
 
-</div>
+5. **Two-route API shape**  
+   `/info` for metadata/debugging and `/badge` for render output keeps responsibilities clean and DX nicer.
 
----
+## Getting Started
 
-## ⚡ Quick Start
+### Prerequisites
 
-### Step 1 — Deploy your own instance
+Install the following before hacking locally:
+
+- Python `3.10+`
+- `pip`
+- (Optional) virtualenv tooling (`python -m venv`)
+- (Optional) Vercel CLI for cloud deploy testing
+
+### Installation
 
 ```bash
-# Clone and enter the folder
+# 1) Clone your fork (or upstream if you're just evaluating)
 git clone https://github.com/readme-SVG/readme-SVG-youtube-preview.git
 cd readme-SVG-youtube-preview
 
-# Install Vercel CLI and deploy (free)
-npm install -g vercel
+# 2) Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# 3) Install dependencies
+pip install -r requirements.txt
+
+# 4) Run Flask app locally (from repository root)
+flask --app api.index run --debug
+```
+
+Local app should be available at:
+
+```text
+http://127.0.0.1:5000
+```
+
+## Testing
+
+This repo currently has **no formal unit/integration test suite checked in**. Current baseline validation is smoke-style endpoint checks.
+
+Use these commands locally:
+
+```bash
+# Syntax sanity for Python modules
+python -m compileall api
+
+# Run local server in one terminal
+flask --app api.index run --debug
+
+# In another terminal: metadata endpoint smoke test
+curl "http://127.0.0.1:5000/info?id=dQw4w9WgXcQ"
+
+# SVG render smoke test (writes output for manual inspection)
+curl "http://127.0.0.1:5000/badge?id=dQw4w9WgXcQ" -o /tmp/card.svg
+```
+
+If you’re extending functionality, add tests in your PR (recommended: `pytest`) and document the command in your PR description.
+
+## Deployment
+
+### Vercel (recommended)
+
+```bash
+# Install CLI once
+npm i -g vercel
+
+# Deploy interactively
 vercel
 ```
 
-Done! Copy your Vercel URL — that becomes your `BASE_URL`.
+`vercel.json` already wires all routes to `api/index.py`, including root UI and API endpoints.
 
-### Step 2 — Add to your README
+### Generic Python Hosting
+
+```bash
+pip install -r requirements.txt
+gunicorn -w 2 -b 0.0.0.0:8000 "api.index:app"
+```
+
+Then expose via reverse proxy (Nginx/Caddy/Cloud LB) as needed.
+
+### CI/CD Notes
+
+No CI pipeline is currently committed. For production-grade workflows, add:
+
+- lint + format checks
+- API smoke tests
+- deploy preview per PR
+- protected main branch with required checks
+
+## Usage
+
+### Minimal Markdown embed
 
 ```markdown
+# Swap BASE_URL with your deployed domain and VIDEO_ID with actual YouTube ID
 [![Watch on YouTube](https://BASE_URL/badge?id=VIDEO_ID)](https://youtube.com/watch?v=VIDEO_ID)
 ```
 
-**That's it.** Replace `BASE_URL` with your Vercel domain and `VIDEO_ID` with any YouTube video ID.
-
-> **One-click deploy:**  
-> [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/readme-SVG/readme-SVG-youtube-preview)
-
----
-
-## 🛠️ API Reference
-
-```
-GET /badge?id=VIDEO_ID
-GET /badge?url=https://youtube.com/watch?v=VIDEO_ID
-```
-
-### Parameters
-
-<div align="center">
-
-| Parameter | Default | Range | Description |
-|:---|:---:|:---:|:---|
-| `url` or `id` | — | **required** | YouTube full URL or bare video ID |
-| `width` | `320` | `200 – 600` | Card width in pixels |
-| `radius` | `10` | `0 – 30` | Corner border radius |
-| `bg` | `0f1117` | hex, no `#` | Background color |
-| `title_color` | `ffffff` | hex, no `#` | Title text color |
-| `title_opacity` | `1` | `0 – 1` | Title text opacity |
-| `plate_color` | auto | hex, no `#` | Bottom label background |
-| `plate_opacity` | `0.85` | `0 – 1` | Bottom label opacity |
-
-</div>
-
-### Example URLs
-
-```bash
-# Bare video ID — simplest form
-/badge?id=dQw4w9WgXcQ
-
-# Full YouTube URL
-/badge?url=https://youtube.com/watch?v=dQw4w9WgXcQ
-
-# Dark red theme, larger card
-/badge?id=dQw4w9WgXcQ&bg=120000&title_color=FF4444&radius=16&width=420
-
-# Light theme, sharp corners
-/badge?id=dQw4w9WgXcQ&bg=ffffff&title_color=111111&radius=4
-
-# Neon on black
-/badge?id=dQw4w9WgXcQ&bg=020010&title_color=00FFAA&plate_color=0a0030&radius=14
-
-# Wide card
-/badge?id=dQw4w9WgXcQ&width=560&radius=10
-```
-
----
-
-## 🏗️ How It Works
-
-```
-Request: /badge?id=dQw4w9WgXcQ
-               │
-               ▼
-   YouTube oEmbed API  ──────────────────────────
-   (public endpoint,                             │
-    no API key needed)                     title + thumbnail_url
-               │
-               ▼
-   Fetch thumbnail image
-   Encode as base64
-   (GitHub blocks external img in SVGs)
-               │
-               ▼
-   Render SVG:
-   ┌───────────────────────────────┐
-   │  [base64 thumbnail image]     │
-   │                               │
-   │  ▶  Video Title Here          │
-   └───────────────────────────────┘
-   Entire card = clickable <a> link
-               │
-               ▼
-   Response served with:
-   Cache-Control: public, max-age=3600
-```
-
-### Why SVG + base64?
-
-| Approach | GitHub renders? | Clickable? | Sharp on Retina? |
-|:---|:---:|:---:|:---:|
-| Linked PNG | ✅ | ❌ | ❌ |
-| SVG with external `<image>` | ❌ blocked | ✅ | ✅ |
-| **SVG with base64 thumbnail** | **✅** | **✅** | **✅** |
-
-GitHub's Markdown sanitizer strips external URLs from `<image>` tags inside SVGs. Embedding as base64 bypasses this — the image data travels inside the SVG itself.
-
----
-
-## 🎨 Style Recipes
-
-Ready-made themes to copy-paste:
+### Full URL input instead of raw video ID
 
 ```markdown
-<!-- Dark (default) -->
-[![Video](https://BASE_URL/badge?id=ID&bg=0f1117&title_color=ffffff&radius=12)](https://youtube.com/watch?v=ID)
-
-<!-- YouTube Red -->
-[![Video](https://BASE_URL/badge?id=ID&bg=1a0000&title_color=FF4444&radius=8&plate_color=2a0000)](https://youtube.com/watch?v=ID)
-
-<!-- GitHub Dark -->
-[![Video](https://BASE_URL/badge?id=ID&bg=161b22&title_color=e6edf3&radius=6)](https://youtube.com/watch?v=ID)
-
-<!-- Clean Light -->
-[![Video](https://BASE_URL/badge?id=ID&bg=ffffff&title_color=24292f&radius=6)](https://youtube.com/watch?v=ID)
-
-<!-- Neon -->
-[![Video](https://BASE_URL/badge?id=ID&bg=020010&title_color=00FFAA&plate_color=0a0030&radius=16)](https://youtube.com/watch?v=ID)
-
-<!-- Minimal, no rounding -->
-[![Video](https://BASE_URL/badge?id=ID&bg=0d0d0d&title_color=cccccc&radius=0&width=360)](https://youtube.com/watch?v=ID)
+# Useful when you already have full YouTube links in scripts/content tooling
+[![Watch on YouTube](https://BASE_URL/badge?url=https://youtube.com/watch?v=dQw4w9WgXcQ)](https://youtube.com/watch?v=dQw4w9WgXcQ)
 ```
 
----
+### Styled card with explicit visual config
 
-## 🔄 Comparison
-
-<div align="center">
-
-| Feature | **readme-SVG-youtube-preview** | github-readme-youtube-cards |
-|:---|:---:|:---:|
-| No YouTube API key needed | ✅ | ❌ |
-| Single video card | ✅ | ❌ channel-only |
-| Renders inside GitHub README | ✅ base64 | ✅ |
-| Custom colors via URL params | ✅ | ❌ theme files |
-| GitHub Actions required | ❌ | ✅ |
-| Setup time | ~30 sec | ~10 min |
-| Self-hosted on Vercel | ✅ | ✅ |
-
-</div>
-
----
-
-## 🚀 Deploy Options
-
-### Vercel _(recommended, free)_
-
-```bash
-npm install -g vercel
-vercel
+```markdown
+# Example with dark palette, outside title plate, and visible border
+[![Watch on YouTube](https://BASE_URL/badge?id=dQw4w9WgXcQ&width=420&radius=12&bg=0f1117&title_color=ffffff&title_opacity=1&plate_color=0b0d12&plate_opacity=0.82&title_position=outside_bottom&border_width=1&border_color=ff0000)](https://youtube.com/watch?v=dQw4w9WgXcQ)
 ```
 
-### Railway
+### API quick reference
 
-```bash
-railway login && railway up
+```text
+GET /badge?id=<VIDEO_ID>
+GET /badge?url=<YOUTUBE_URL>
+GET /info?id=<VIDEO_ID>
+GET /info?url=<YOUTUBE_URL>
 ```
 
-### Self-hosted (Node.js)
+## Configuration
 
-```bash
-npm install
-npm start
-# Running on http://localhost:3000
-```
+This project is currently mostly **config-via-query-params** (no mandatory `.env` variables).
 
----
+### Query parameters for `/badge`
 
-## 🤝 Contributing
+- `id` or `url` (required, one of them)
+- `width` (default `320`, clamped `200..600`)
+- `radius` (default `10`, clamped `0..30`)
+- `bg` (default `0f1117`)
+- `title_color` (default `ffffff`)
+- `title_opacity` (default `1`, clamped `0..1`)
+- `plate_color` (default `0f1117`)
+- `plate_opacity` (default `0.78`, clamped `0..1`)
+- `title_position` (`overlay_top`, `overlay_bottom`, `outside_top`, `outside_bottom`; aliases supported)
+- `border_width` (default `1`, clamped `0..10`)
+- `border_color` (default `ffffff`)
+- `embed` (`true` by default; set `embed=false` to skip base64 embedding)
 
-```bash
-# Fork, then:
-git clone https://github.com/YOUR_USERNAME/readme-SVG-youtube-preview.git
-cd readme-SVG-youtube-preview
-npm install
-npm run dev
-```
+### Environment variables
 
-PRs welcome for:
-- New built-in theme presets
-- Additional URL parameters (e.g. font size, icon style)
-- Bug fixes and performance improvements
-- Translations and documentation
+No required runtime env vars are hardcoded in the current code path. If you add config, keep `.env.example` in sync and document every key here.
 
-Check [open issues](https://github.com/readme-SVG/readme-SVG-youtube-preview/issues) before starting.
+## License
 
----
+Distributed under the Apache-2.0 License. See [`LICENSE`](LICENSE).
 
-<div align="center">
+## Contacts
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 60" width="600">
-  <rect width="600" height="60" fill="#0f1117" rx="10"/>
-  <text x="300" y="26" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" fill="#8b949e">If this saved you time, consider giving it a</text>
-  <text x="300" y="46" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" fill="#e6edf3">⭐ star — it helps others find the project</text>
-</svg>
+- GitHub org: [`readme-SVG`](https://github.com/readme-SVG)
+- Maintainer profile: [`OstinUA`](https://github.com/OstinUA)
+- Issues: <https://github.com/readme-SVG/readme-SVG-youtube-preview/issues>
 
-<br/><br/>
+## ❤️ Support the Project
 
-*Part of the [readme-SVG](https://github.com/readme-SVG) collection — beautiful SVG components for GitHub READMEs*
+If you find this tool useful, consider leaving a ⭐ on GitHub or supporting the author directly:
 
-</div>
+[![Patreon](https://img.shields.io/badge/Patreon-OstinFCT-f96854?style=flat-square&logo=patreon)](https://www.patreon.com/OstinFCT)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-fctostin-29abe0?style=flat-square&logo=ko-fi)](https://ko-fi.com/fctostin)
+[![Boosty](https://img.shields.io/badge/Boosty-Support-f15f2c?style=flat-square)](https://boosty.to/ostinfct)
+[![YouTube](https://img.shields.io/badge/YouTube-FCT--Ostin-red?style=flat-square&logo=youtube)](https://www.youtube.com/@FCT-Ostin)
+[![Telegram](https://img.shields.io/badge/Telegram-FCTostin-2ca5e0?style=flat-square&logo=telegram)](https://t.me/FCTostin)
