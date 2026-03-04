@@ -1,14 +1,37 @@
-# readme-SVG YouTube Preview
+<div align="center">
 
-**Turn any YouTube URL into a GitHub-safe, clickable SVG preview card with zero API-key drama.**
+[![SVG Animation](https://readme-svg-typing-generator.vercel.app/api?lines=YouTube%20Badge%20Generator&animation=stroke&color=ff0000&background=00000000&size=52&font=monospace&duration=7000&pause=0&width=700&height=60&letterSpacing=-0.05em&center=false&vCenter=false&multiline=false&repeat=true&random=false)](https://github.com/OstinUA)
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue?style=for-the-badge)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#tech-stack)
-[![Vercel Runtime](https://img.shields.io/badge/Runtime-Vercel%20Python-000000?style=for-the-badge&logo=vercel&logoColor=white)](vercel.json)
-[![Build](https://img.shields.io/badge/Build-No%20CI%20configured-lightgrey?style=for-the-badge)](#testing)
-[![Coverage](https://img.shields.io/badge/Coverage-Not%20Configured-lightgrey?style=for-the-badge)](#testing)
+Embed clickable YouTube cards in any GitHub README — no API key required
 
-A lightweight Flask service that fetches YouTube metadata via oEmbed, generates polished SVG cards, and optionally embeds thumbnails as base64 so GitHub README rendering doesn’t nuke your preview images.
+[![Deploy to Vercel](https://img.shields.io/badge/Deploy%20to-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/new/clone?repository-url=https://github.com/readme-SVG/readme-SVG-youtube-preview)
+[![No API Key](https://img.shields.io/badge/No%20API%20Key-Required-22c55e?style=for-the-badge&logo=youtube&logoColor=white)](#how-it-works)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](https://opensource.org/licenses/Apache-2.0)
+[![SVG Output](https://img.shields.io/badge/Output-Pure%20SVG-ff0000?style=for-the-badge)](#)
+
+</div>
+
+---
+
+## What is this?
+
+**readme-SVG-youtube-preview** turns any YouTube URL into a **clickable, styled SVG card** you can drop into any GitHub README, Markdown file, or webpage.
+
+```markdown
+[![Watch on YouTube](https://your-app.vercel.app/badge?id=dQw4w9WgXcQ)](https://youtube.com/watch?v=dQw4w9WgXcQ)
+```
+
+> The thumbnail is embedded as **base64 inside the SVG** — so it renders perfectly inside GitHub README without being blocked by GitHub's image proxy.
+
+---
+
+## 🎬 Live Examples
+
+<div align="center">
+
+[![YouTube video](https://readme-svg-youtube-preview.vercel.app/badge?id=FHCoToqLIEg&width=250&radius=8&bg=0d1117&title_color=ffffff&title_opacity=1&plate_color=0f1117&plate_opacity=0.78&title_position=outside_bottom&border_width=1&border_color=ff0000)](https://www.youtube.com/watch?v=FHCoToqLIEg)ㅤ[![YouTube video](https://readme-svg-youtube-preview.vercel.app/badge?id=hHwY3NDvCAw&width=250&radius=8&bg=0d1117&title_color=ffffff&title_opacity=1&plate_color=0f1117&plate_opacity=0.78&title_position=outside_bottom&border_width=1&border_color=ffffff)](https://www.youtube.com/watch?v=hHwY3NDvCAw)ㅤ[![YouTube video](https://readme-svg-youtube-preview.vercel.app/badge?id=SAmPKZr-Rm4&width=250&radius=8&bg=0d1117&title_color=ffffff&title_opacity=1&plate_color=0f1117&plate_opacity=0.78&title_position=outside_bottom&border_width=1&border_color=ff0000)](https://www.youtube.com/watch?v=SAmPKZr-Rm4)
+
+</div>
 
 ## Table of Contents
 
