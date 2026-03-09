@@ -1,10 +1,30 @@
 {
   "builds": [
-    { "src": "api/index.py", "use": "@vercel/python" }
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    }
   ],
   "routes": [
-    { "src": "/badge", "dest": "/api/index.py" },
-    { "src": "/info",  "dest": "/api/index.py" },
-    { "src": "/(.*)", "dest": "/api/index.py" }
+    {
+      "src": "/badge",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/info",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/styles.css",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/app.js",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.py"
+    }
   ]
 }
