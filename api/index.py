@@ -68,6 +68,18 @@ def index():
     return send_file(os.path.abspath(html_path))
 
 
+@app.route("/styles.css")
+def styles():
+    css_path = os.path.join(os.path.dirname(__file__), "..", "styles.css")
+    return send_file(os.path.abspath(css_path), mimetype="text/css")
+
+
+@app.route("/app.js")
+def script():
+    js_path = os.path.join(os.path.dirname(__file__), "..", "app.js")
+    return send_file(os.path.abspath(js_path), mimetype="application/javascript")
+
+
 @app.route("/badge")
 def badge():
     """
