@@ -114,7 +114,7 @@
 
     <div class="error-msg" id="error-msg"></div>
 
-    <button class="generate" id="gen-btn" onclick="generate()">
+    <button class="generate" id="gen-btn" type="button">
       ▶ Generate Badge
     </button>
   </div>
@@ -140,13 +140,13 @@
     <div class="result-section">
       <h3>Embed Code</h3>
       <div class="tabs">
-        <button class="tab active" onclick="setTab('markdown', this)">Markdown</button>
-        <button class="tab" onclick="setTab('html', this)">HTML</button>
-        <button class="tab" onclick="setTab('url', this)">Direct URL</button>
+        <button class="tab active" type="button" data-tab="markdown">Markdown</button>
+        <button class="tab" type="button" data-tab="html">HTML</button>
+        <button class="tab" type="button" data-tab="url">Direct URL</button>
       </div>
       <div class="code-block">
         <pre id="code-output"></pre>
-        <button class="copy-btn" id="copy-btn" onclick="copyCode()">Copy</button>
+        <button class="copy-btn" id="copy-btn" type="button">Copy</button>
       </div>
     </div>
 

@@ -17,12 +17,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ github.head_ref }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '20'
 
@@ -48,12 +46,13 @@ jobs:
             echo "No package.json found. Skipping lint."
           fi
 
-      - name: Validate JavaScript syntax
+      - name: Validate JavaScript and Python syntax
         run: |
-          if [ -d api ]; then
-            while IFS= read -r -d '' file; do
-              node --check "$file"
-            done < <(find api -type f -name '*.js' -print0)
-          else
-            echo "No api/ directory found. Skipping JavaScript syntax validation."
-          fi
+          # Check every JavaScript file in the repository (e.g. app.js).
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find . -path ./node_modules -prune -o -type f -name '*.js' -print0)
+
+          # Byte-compile every Python file to catch syntax errors early.
+          find . -path ./node_modules -prune -o -type f -name '*.py' -print0 \
+            | xargs -0 -r python3 -m py_compile
