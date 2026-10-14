@@ -8,6 +8,14 @@ updates:
       - "dependencies"
       - "python"
 
+  - package-ecosystem: "pip"
+    directory: "/trigger action"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "python"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
